@@ -13,13 +13,13 @@ BIN_DIR = $(TEST_DIR)
 
 # Файлы
 SRC_FILES = $(SRC_DIR)/relation.c
-OBJ_FILES = $(SRC_FILES:$(SRC_DIR)/%.c=%.o)
+OBJ_FILES = relation.o
 TEST_SRC = $(TEST_DIR)/test.c
 LIB_NAME = $(LIB_DIR)/librelation.a
 TEST_EXEC = $(BIN_DIR)/run
 
 # Цели по умолчанию
-all: debug
+all: $(TEST_EXEC)
 
 # Debug сборка
 debug: CFLAGS += $(DEBUG_FLAGS)
@@ -34,12 +34,12 @@ $(LIB_NAME): $(OBJ_FILES) | $(LIB_DIR)
 	ar rcs $@ $(OBJ_FILES)
 
 # Компиляция объектных файлов
-%.o: $(SRC_DIR)/%.c | $(INCLUDE_DIR)
+relation.o: $(SRC_DIR)/relation.c | $(INCLUDE_DIR)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 # Создание тестового исполняемого файла
-$(TEST_EXEC): $(TEST_SRC) $(LIB_NAME) | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $@ $(TEST_SRC) -L$(LIB_DIR) -lrelation
+$(TEST_EXEC): $(TEST_SRC) $(SRC_FILES) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $@ $(TEST_SRC) $(SRC_FILES)
 
 # Создание необходимых директорий
 $(LIB_DIR):
@@ -50,12 +50,11 @@ $(BIN_DIR):
 
 # Очистка
 clean:
-	rm -rf $(LIB_DIR) $(BIN_DIR) *.o
+	rm -rf $(LIB_DIR) $(BIN_DIR)/run *.o
 
 # Запуск тестов
 test: $(TEST_EXEC)
-	./$(TEST_EXEC)
+	$(TEST_EXEC)
 
 # Псевдоцели
 .PHONY: all debug release clean test
-
