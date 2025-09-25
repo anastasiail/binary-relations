@@ -8,18 +8,15 @@ RELEASE_FLAGS = -O2
 SRC_DIR = src
 TEST_DIR = test
 INCLUDE_DIR = include
-LIB_DIR = lib
 BIN_DIR = $(TEST_DIR)
 
 # Файлы
-SRC_FILES = $(SRC_DIR)/relation.c
-OBJ_FILES = relation.o
-TEST_SRC = $(TEST_DIR)/test.c
-LIB_NAME = $(LIB_DIR)/librelation.a
+SRC_FILE = $(SRC_DIR)/relation.c
+TEST_FILE = $(TEST_DIR)/test.c
 TEST_EXEC = $(BIN_DIR)/run
 
 # Цели по умолчанию
-all: $(TEST_EXEC)
+all: debug
 
 # Debug сборка
 debug: CFLAGS += $(DEBUG_FLAGS)
@@ -29,32 +26,33 @@ debug: $(TEST_EXEC)
 release: CFLAGS += $(RELEASE_FLAGS)
 release: $(TEST_EXEC)
 
-# Создание библиотеки
-$(LIB_NAME): $(OBJ_FILES) | $(LIB_DIR)
-	ar rcs $@ $(OBJ_FILES)
-
-# Компиляция объектных файлов
-relation.o: $(SRC_DIR)/relation.c | $(INCLUDE_DIR)
-	$(CC) $(CFLAGS) -c -o $@ $<
-
 # Создание тестового исполняемого файла
-$(TEST_EXEC): $(TEST_SRC) $(SRC_FILES) | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $@ $(TEST_SRC) $(SRC_FILES)
+$(TEST_EXEC): $(SRC_FILE) $(TEST_FILE) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $@ $(TEST_FILE) $(SRC_FILE)
+	@echo "✅ Сборка завершена. Исполняемый файл: $(TEST_EXEC)"
 
 # Создание необходимых директорий
-$(LIB_DIR):
-	mkdir -p $(LIB_DIR)
-
 $(BIN_DIR):
-	mkdir -p $(BIN_DIR)
+	@mkdir -p $(BIN_DIR)
 
 # Очистка
 clean:
-	rm -rf $(LIB_DIR) $(BIN_DIR)/run *.o
+	rm -rf $(TEST_EXEC) *.o
+	@echo "✅ Очистка завершена"
 
 # Запуск тестов
 test: $(TEST_EXEC)
-	$(TEST_EXEC)
+	@echo "🚀 Запуск тестов..."
+	@$(TEST_EXEC)
+
+# Показ помощи
+help:
+	@echo "Доступные команды:"
+	@echo "  make       - собрать проект (debug версия)"
+	@echo "  make debug - собрать debug версию"
+	@echo "  make release - собрать release версию"
+	@echo "  make test  - собрать и запустить тесты"
+	@echo "  make clean - очистить собранные файлы"
 
 # Псевдоцели
-.PHONY: all debug release clean test
+.PHONY: all debug release clean test help
