@@ -16,43 +16,46 @@ TEST_FILE = $(TEST_DIR)/test.c
 TEST_EXEC = $(BIN_DIR)/run
 
 # Цели по умолчанию
-all: debug
+.DEFAULT_GOAL := build
 
 # Debug сборка
 debug: CFLAGS += $(DEBUG_FLAGS)
-debug: $(TEST_EXEC)
+debug: build
 
-# Release сборка
+# Release сборка  
 release: CFLAGS += $(RELEASE_FLAGS)
-release: $(TEST_EXEC)
+release: build
 
-# Создание тестового исполняемого файла
+# Основная сборка
+build: $(TEST_EXEC)
+	@echo "✅ Сборка завершена"
+
+# Создание исполняемого файла
 $(TEST_EXEC): $(SRC_FILE) $(TEST_FILE) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $@ $(TEST_FILE) $(SRC_FILE)
-	@echo "✅ Сборка завершена. Исполняемый файл: $(TEST_EXEC)"
 
-# Создание необходимых директорий
+# Создание директории для бинарников
 $(BIN_DIR):
-	@mkdir -p $(BIN_DIR)
+	mkdir -p $(BIN_DIR)
+
+# Запуск тестов
+test: build
+	@echo "🚀 Запуск тестов..."
+	@./$(TEST_EXEC)
 
 # Очистка
 clean:
 	rm -rf $(TEST_EXEC) *.o
 	@echo "✅ Очистка завершена"
 
-# Запуск тестов
-test: $(TEST_EXEC)
-	@echo "🚀 Запуск тестов..."
-	@$(TEST_EXEC)
-
 # Показ помощи
 help:
 	@echo "Доступные команды:"
-	@echo "  make       - собрать проект (debug версия)"
-	@echo "  make debug - собрать debug версию"
-	@echo "  make release - собрать release версию"
+	@echo "  make       - собрать проект"
 	@echo "  make test  - собрать и запустить тесты"
 	@echo "  make clean - очистить собранные файлы"
+	@echo "  make debug - собрать debug версию"
+	@echo "  make release - собрать release версию"
 
 # Псевдоцели
-.PHONY: all debug release clean test help
+.PHONY: all build debug release clean test help
